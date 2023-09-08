@@ -122,4 +122,22 @@ app.get("/account", verifyIfExistsAccountCPF, (req, res) => {
     return res.json(customer);
 });
 
+app.delete("/account", verifyIfExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+    console.log("full",customers)
+
+    customers.splice(customer, 1);
+
+    console.log("apos delite",customers)
+
+    return res.status(200).json(customers);
+});
+
+app.get("/balance", verifyIfExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+
+    const balance = getBalance(customer.statement);
+    return res.json(balance);
+});
+
 app.listen(8080);
