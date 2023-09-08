@@ -1,4 +1,6 @@
 const express = require('express');
+const req = require('express/lib/request');
+const res = require('express/lib/response');
 const { v4: uuidv4 } = require("uuid");
 
 const app = express();
@@ -73,13 +75,13 @@ app.post("/deposit", verifyIfExistsAccountCPF, (req, res) => {
 });
 
 app.post("/withdraw", verifyIfExistsAccountCPF, (req, res) => {
-    const {amount } = req.body;
+    const { amount } = req.body;
     const { customer } = req;
 
     const balance = getBalance(customer.statement);
 
-    if(balance<amount){
-        return res.status(400).json({error: "Insufficient funds!"});
+    if (balance < amount) {
+        return res.status(400).json({ error: "Insufficient funds!" });
     };
 
     const statementOperation = {
@@ -95,15 +97,29 @@ app.post("/withdraw", verifyIfExistsAccountCPF, (req, res) => {
 
 app.get("/statement/date", verifyIfExistsAccountCPF, (req, res) => {
     const { customer } = req;
-    const {date}= req.query;
+    const { date } = req.query;
 
     const dateFormat = new Date(date + " 00:00");
 
-    const statement = customer.statement.filter((statement)=>
-     statement.created_at.toDateString() === new Date(dateFormat).toDateString());
+    const statement = customer.statement.filter((statement) =>
+        statement.created_at.toDateString() === new Date(dateFormat).toDateString());
 
     return res.json(statement);
 });
 
+app.put("/account", verifyIfExistsAccountCPF, (req, res) => {
+    const { name } = req.body;
+    const { customer } = req;
+
+    customer.name = name;
+
+    return res.sendStatus(201);
+});
+
+app.get("/account", verifyIfExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+
+    return res.json(customer);
+});
 
 app.listen(8080);
